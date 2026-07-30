@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day Counter</title>
+
+<style>
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f4f4f4;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+    position: relative;
+}
+
+.container{
+    background:white;
+    padding:40px;
+    border-radius:14px;
+    box-shadow:0 8px 30px rgba(0,0,0,.15);
+    width:900px;
+}
+
+#hero {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+#hero > div {
+    margin: 6px 0;
+    font-size: 1.2em;
+}
+
+.counter-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.counter{
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 8px 30px rgba(0,0,0,.15);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.header h1 {
+    margin: 0;
+    margin-right: 10px;
+}
+
+.header button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 24px;
+}
+
+.dark-toggle {
+    position: absolute;
+    top: 20px;
+    right: 60px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 24px;
+}
+
+h1{
+    text-align:center;
+    margin-top:0;
+}
+
+.label{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:20px;
+}
+
+button{
+    cursor:pointer;
+    border:none;
+    background:none;
+    font-size:16px;
+}
+
+.days{
+    font-size:48px;
+    font-weight:bold;
+    margin-top:8px;
+    text-align: center;
+}
+
+.date{
+    color:#666;
+    margin-top:6px;
+    font-size:14px;
+    text-align: center;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.card {
+    background: #e0e0e0;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+}
+
+.card-value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.milestone {
+    margin-top: 12px;
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+.badge {
+    margin-top: 12px;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 12px;
+    color: white;
+    user-select: none;
+}
+
+#sobrietyBadge {
+    background: #4caf50;
+}
+
+#smokingBadge {
+    background: #2196f3;
+}
+
+.stats{
+    margin-top:8px;
+    font-size:16px;
+    color:#333;
+    text-align: center;
+}
+
+#settingsModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#settingsModal .modal-content {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.15);
+}
+
+#settingsModal label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#settingsModal input {
+    width: 100%;
+    padding: 6px 8px;
+    margin-top: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+#settingsModal .buttons {
+    margin-top: 20px;
+    text-align: right;
+}
+
+#settingsModal .buttons button {
+    font-size: 16px;
+    padding: 6px 12px;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+/* Dark mode styles */
+body.dark {
+    background: #121212;
+    color: #e0e0e0;
+}
+
+body.dark .container {
+    background: #1e1e1e;
+    box-shadow: 0 8px 30px rgba(255,255,255,.1);
+}
+
+body.dark .card {
+    background: #333333;
+    color: #e0e0e0;
+}
+
+body.dark #settingsModal .modal-content {
+    background: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark .date {
+    color: #bbb;
+}
+
+body.dark .milestone {
+    color: #81c784;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+    .counter-grid {
+        flex-direction: column;
+    }
+}
+
+/* Confetti styles */
+.confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    opacity: 0.9;
+    border-radius: 50%;
+    pointer-events: none;
+    animation-name: confetti-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(300px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="hero">
+    <div id="currentDate"></div>
+    <div id="totalSaved"></div>
+    <div id="motivation"></div>
+</div>
+
+<div class="header">
+    <h1>My Counters</h1>
+    <button class="dark-toggle" onclick="toggleDarkMode()" aria-label="Toggle Dark Mode">🌙</button>
+    <button onclick="openSettings()" aria-label="Settings">⚙️</button>
+</div>
+
+<div class="counter-grid">
+
+<div class="counter">
+    <div class="label">
+        <span>🍺 Sobriety</span>
+    </div>
+
+    <div class="days" id="sobrietyDays"></div>
+
+    <div class="date" id="sobrietyDate"></div>
+
+    <div class="cards">
+        <div class="card" id="sobrietyDaysCard">
+            <div class="card-value">0</div>
+            <div>Days</div>
+        </div>
+        <div class="card" id="sobrietyAvoided">
+            <div class="card-value">0</div>
+            <div>Avoided</div>
+        </div>
+        <div class="card" id="sobrietySaved">
+            <div class="card-value">$0.00</div>
+            <div>Saved</div>
+        </div>
+        <div class="card milestone" id="sobrietyMilestone">
+            0 days until next milestone
+        </div>
+    </div>
+    <div id="sobrietyBadge" class="badge"></div>
+</div>
+
+<div class="counter">
+    <div class="label">
+        <span>🚭 Smoke Free</span>
+    </div>
+
+    <div class="days" id="smokingDays"></div>
+
+    <div class="date" id="smokingDate"></div>
+
+    <div class="cards">
+        <div class="card" id="smokingDaysCard">
+            <div class="card-value">0</div>
+            <div>Days</div>
+        </div>
+        <div class="card" id="smokingAvoided">
+            <div class="card-value">0</div>
+            <div>Avoided</div>
+        </div>
+        <div class="card" id="smokingSaved">
+            <div class="card-value">$0.00</div>
+            <div>Saved</div>
+        </div>
+        <div class="card milestone" id="smokingMilestone">
+            0 days until next milestone
+        </div>
+    </div>
+    <div id="smokingBadge" class="badge"></div>
+</div>
+
+</div>
+
+</div>
+
+<div id="settingsModal">
+    <div class="modal-content">
+        <label for="sobrietyInput">Sobriety Start Date</label>
+        <input type="date" id="sobrietyInput">
+
+        <label for="smokingInput">Smoking Start Date</label>
+        <input type="date" id="smokingInput">
+
+        <label for="cigarettesPerDayInput">Cigarettes Per Day</label>
+        <input type="number" id="cigarettesPerDayInput" min="0" step="1">
+
+        <label for="beersPerDayInput">Beers Per Day</label>
+        <input type="number" id="beersPerDayInput" min="0" step="1">
+
+        <label for="costPerPackInput">Cost Per Pack ($)</label>
+        <input type="number" id="costPerPackInput" min="0" step="0.01">
+
+        <label for="costPerBeerInput">Cost Per Beer ($)</label>
+        <input type="number" id="costPerBeerInput" min="0" step="0.01">
+
+        <div class="buttons">
+            <button onclick="closeSettings()" type="button">Cancel</button>
+            <button onclick="saveSettings()" type="button">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+const DEFAULT_DATE = "2026-05-17";
+const DEFAULT_CIGARETTES_PER_DAY = 12;
+const DEFAULT_BEERS_PER_DAY = 9;
+const DEFAULT_COST_PER_PACK = 17.00;
+const DEFAULT_CIGARETTES_PER_PACK = 20;
+const DEFAULT_COST_PER_BEER = 1.66;
+
+function getDate(name){
+    return localStorage.getItem(name) || DEFAULT_DATE;
+}
+
+function saveDate(name,date){
+    localStorage.setItem(name,date);
+}
+
+function getCigarettesPerDay(){
+    const val = localStorage.getItem("cigarettesPerDay");
+    return val !== null ? Number(val) : DEFAULT_CIGARETTES_PER_DAY;
+}
+
+function saveCigarettesPerDay(val){
+    localStorage.setItem("cigarettesPerDay", val);
+}
+
+function getBeersPerDay(){
+    const val = localStorage.getItem("beersPerDay");
+    return val !== null ? Number(val) : DEFAULT_BEERS_PER_DAY;
+}
+
+function saveBeersPerDay(val){
+    localStorage.setItem("beersPerDay", val);
+}
+
+function getCostPerPack(){
+    const val = localStorage.getItem("costPerPack");
+    return val !== null ? Number(val) : DEFAULT_COST_PER_PACK;
+}
+
+function saveCostPerPack(val){
+    localStorage.setItem("costPerPack", val);
+}
+
+function getCostPerBeer(){
+    const val = localStorage.getItem("costPerBeer");
+    return val !== null ? Number(val) : DEFAULT_COST_PER_BEER;
+}
+
+function saveCostPerBeer(val){
+    localStorage.setItem("costPerBeer", val);
+}
+
+function daysSince(dateString){
+
+    const start = new Date(dateString);
+    const today = new Date();
+
+    start.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+
+    const diff = today - start;
+
+    return Math.floor(diff/(1000*60*60*24));
+
+}
+
+function animateValue(element, start, end, duration, formatter) {
+    if (start === end) {
+        element.textContent = formatter(end);
+        return;
+    }
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.textContent = formatter(value);
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            element.textContent = formatter(end);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+function createConfetti() {
+    const confettiColors = ['#FFC700', '#FF0000', '#2E3192', '#41BBC7', '#732982', '#FF6F61', '#6B8E23'];
+    const confettiContainer = document.createElement('div');
+    confettiContainer.style.position = 'fixed';
+    confettiContainer.style.top = '0';
+    confettiContainer.style.left = '0';
+    confettiContainer.style.width = '100%';
+    confettiContainer.style.height = '100%';
+    confettiContainer.style.pointerEvents = 'none';
+    confettiContainer.style.zIndex = '9999';
+    document.body.appendChild(confettiContainer);
+
+    for(let i=0; i<75; i++){
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti-piece');
+        confetti.style.backgroundColor = confettiColors[Math.floor(Math.random()*confettiColors.length)];
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.top = (Math.random() * -20) + 'px';
+        confetti.style.width = (Math.random() * 8 + 4) + 'px';
+        confetti.style.height = confetti.style.width;
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+        confetti.style.opacity = 0.9;
+        confettiContainer.appendChild(confetti);
+    }
+
+    setTimeout(() => {
+        document.body.removeChild(confettiContainer);
+    }, 3000);
+}
+
+function getBadgeText(days) {
+    if(days >= 365) return '🏆 One Year';
+    if(days >= 180) return '🥇 Six Months';
+    if(days >= 90) return '⭐ 90 Days';
+    if(days >= 30) return '🎉 30 Days';
+    if(days >= 7) return '👏 One Week';
+    return '';
+}
+
+function update(){
+
+    const milestones = [30,60,90,180,365,730,1000];
+    let totalSavings = 0;
+    let totalDaysSum = 0;
+
+    const quotes = [
+        "Keep going, you're doing great!",
+        "Every day counts!",
+        "Stay strong and motivated!",
+        "Your future self thanks you!",
+        "Small steps lead to big changes.",
+        "Believe in yourself!",
+        "One day at a time."
+    ];
+
+    ["sobriety","smoking"].forEach(name=>{
+
+        const date=getDate(name);
+        const days = daysSince(date);
+
+        // Animate large day count
+        const daysElem = document.getElementById(name+"Days");
+        const currentVal = Number(daysElem.textContent.replace(/\D/g,'')) || 0;
+        animateValue(daysElem, currentVal, days, 1000, v => `${v} days`);
+
+        // Format started date
+        const startDate = new Date(date);
+        const formattedDate = startDate.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+        document.getElementById(name+"Date").textContent = "Started: " + formattedDate;
+
+        if(name === "sobriety"){
+            const beersPerDay = getBeersPerDay();
+            const costPerBeer = getCostPerBeer();
+            const avoided = days * beersPerDay;
+            const saved = avoided * costPerBeer;
+
+            totalSavings += saved;
+            totalDaysSum += days;
+
+            // Update cards
+            document.querySelector("#sobrietyDaysCard .card-value").textContent = days;
+            document.querySelector("#sobrietyAvoided .card-value").textContent = avoided;
+            document.querySelector("#sobrietySaved .card-value").textContent = "$" + saved.toFixed(2);
+
+            // Milestone
+            let nextMilestone = milestones.find(m => m > days);
+            let milestoneText = "";
+            if(nextMilestone){
+                milestoneText = (nextMilestone - days) + " days until " + nextMilestone;
+            } else {
+                milestoneText = "1000+ days!";
+            }
+            document.getElementById("sobrietyMilestone").textContent = milestoneText;
+
+            // Badge
+            document.getElementById("sobrietyBadge").textContent = getBadgeText(days);
+
+            // Confetti on milestone hit
+            if(milestones.includes(days)){
+                createConfetti();
+            }
+
+        } else {
+            const cigarettesPerDay = getCigarettesPerDay();
+            const costPerPack = getCostPerPack();
+            const cigarettesPerPack = DEFAULT_CIGARETTES_PER_PACK;
+            const avoided = days * cigarettesPerDay;
+            const saved = (avoided / cigarettesPerPack) * costPerPack;
+
+            totalSavings += saved;
+            totalDaysSum += days;
+
+            // Update cards
+            document.querySelector("#smokingDaysCard .card-value").textContent = days;
+            document.querySelector("#smokingAvoided .card-value").textContent = avoided;
+            document.querySelector("#smokingSaved .card-value").textContent = "$" + saved.toFixed(2);
+
+            // Milestone
+            let nextMilestone = milestones.find(m => m > days);
+            let milestoneText = "";
+            if(nextMilestone){
+                milestoneText = (nextMilestone - days) + " days until " + nextMilestone;
+            } else {
+                milestoneText = "1000+ days!";
+            }
+            document.getElementById("smokingMilestone").textContent = milestoneText;
+
+            // Badge
+            document.getElementById("smokingBadge").textContent = getBadgeText(days);
+
+            // Confetti on milestone hit
+            if(milestones.includes(days)){
+                createConfetti();
+            }
+        }
+
+    });
+
+    // Update total saved and current date and motivation
+    document.getElementById('totalSaved').textContent = `Total Saved: $${totalSavings.toFixed(2)}`;
+    const today = new Date();
+    document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    const motivationIndex = totalDaysSum % quotes.length;
+    document.getElementById('motivation').textContent = quotes[motivationIndex];
+
+}
+
+function openSettings(){
+    document.getElementById("sobrietyInput").value = getDate("sobriety");
+    document.getElementById("smokingInput").value = getDate("smoking");
+    document.getElementById("cigarettesPerDayInput").value = getCigarettesPerDay();
+    document.getElementById("beersPerDayInput").value = getBeersPerDay();
+    document.getElementById("costPerPackInput").value = getCostPerPack().toFixed(2);
+    document.getElementById("costPerBeerInput").value = getCostPerBeer().toFixed(2);
+    document.getElementById("settingsModal").style.display = "flex";
+}
+
+function closeSettings(){
+    document.getElementById("settingsModal").style.display = "none";
+}
+
+function saveSettings(){
+    const sobrietyVal = document.getElementById("sobrietyInput").value;
+    const smokingVal = document.getElementById("smokingInput").value;
+    const cigarettesPerDayVal = Number(document.getElementById("cigarettesPerDayInput").value);
+    const beersPerDayVal = Number(document.getElementById("beersPerDayInput").value);
+    const costPerPackVal = Number(document.getElementById("costPerPackInput").value);
+    const costPerBeerVal = Number(document.getElementById("costPerBeerInput").value);
+
+    if(sobrietyVal) saveDate("sobriety", sobrietyVal);
+    if(smokingVal) saveDate("smoking", smokingVal);
+    if(!isNaN(cigarettesPerDayVal) && cigarettesPerDayVal >= 0) saveCigarettesPerDay(cigarettesPerDayVal);
+    if(!isNaN(beersPerDayVal) && beersPerDayVal >= 0) saveBeersPerDay(beersPerDayVal);
+    if(!isNaN(costPerPackVal) && costPerPackVal >= 0) saveCostPerPack(costPerPackVal);
+    if(!isNaN(costPerBeerVal) && costPerBeerVal >= 0) saveCostPerBeer(costPerBeerVal);
+
+    closeSettings();
+    update();
+}
+
+function toggleDarkMode(){
+    const body = document.body;
+    if(body.classList.contains("dark")){
+        body.classList.remove("dark");
+        localStorage.setItem("darkMode", "false");
+    } else {
+        body.classList.add("dark");
+        localStorage.setItem("darkMode", "true");
+    }
+}
+
+function applyDarkModePreference(){
+    const darkMode = localStorage.getItem("darkMode");
+    if(darkMode === "true"){
+        document.body.classList.add("dark");
+    } else {
+        document.body.classList.remove("dark");
+    }
+}
+
+applyDarkModePreference();
+update();
+
+</script>
+
+</body>
+</html>

@@ -58,7 +58,6 @@ body{
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
-    position: relative;
 }
 
 .header h1 {
@@ -77,6 +76,16 @@ body{
     position: absolute;
     top: 20px;
     right: 60px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 24px;
+}
+
+.settings-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     cursor: pointer;
     border: none;
     background: none;
@@ -291,7 +300,7 @@ body.dark .milestone {
 <div class="header">
     <h1>Sobriety Counter</h1>
     <button class="dark-toggle" onclick="toggleDarkMode()" aria-label="Toggle Dark Mode">☽☼</button>
-    <button onclick="openSettings()" aria-label="Settings">⚙</button>
+    <button class="settings-toggle" onclick="openSettings()" aria-label="Settings">⚙</button>
 </div>
 
 <div class="counter-grid">

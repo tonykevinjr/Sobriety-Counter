@@ -289,9 +289,9 @@ body.dark .milestone {
 </div>
 
 <div class="header">
-    <h1>My Counters</h1>
-    <button class="dark-toggle" onclick="toggleDarkMode()" aria-label="Toggle Dark Mode">🌙</button>
-    <button onclick="openSettings()" aria-label="Settings">⚙️</button>
+    <h1>Sobriety Counter</h1>
+    <button class="dark-toggle" onclick="toggleDarkMode()" aria-label="Toggle Dark Mode">☽☼</button>
+    <button onclick="openSettings()" aria-label="Settings">⚙</button>
 </div>
 
 <div class="counter-grid">
@@ -319,7 +319,7 @@ body.dark .milestone {
             <div>Saved</div>
         </div>
         <div class="card milestone" id="sobrietyMilestone">
-            0 days until next milestone
+            Milestone
         </div>
     </div>
     <div id="sobrietyBadge" class="badge"></div>
@@ -327,7 +327,7 @@ body.dark .milestone {
 
 <div class="counter">
     <div class="label">
-        <span>🚭 Smoke Free</span>
+        <span>🚬 Cigarettes</span>
     </div>
 
     <div class="days" id="smokingDays"></div>
@@ -348,7 +348,7 @@ body.dark .milestone {
             <div>Saved</div>
         </div>
         <div class="card milestone" id="smokingMilestone">
-            0 days until next milestone
+            Milestone
         </div>
     </div>
     <div id="smokingBadge" class="badge"></div>
@@ -561,14 +561,14 @@ function update(){
             let nextMilestone = milestones.find(m => m > days);
             let milestoneText = "";
             if(nextMilestone){
-                milestoneText = (nextMilestone - days) + " days until " + nextMilestone;
+                milestoneText = "Next: " + nextMilestone + " Days (" + (nextMilestone - days) + " days remaining)";
             } else {
                 milestoneText = "1000+ days!";
             }
-            document.getElementById("sobrietyMilestone").textContent = milestoneText;
+            document.getElementById("sobrietyMilestone").textContent = getBadgeText(days);
 
             // Badge
-            document.getElementById("sobrietyBadge").textContent = getBadgeText(days);
+            document.getElementById("sobrietyBadge").textContent = milestoneText;
 
             // Confetti on milestone hit
             if(milestones.includes(days)){
@@ -594,14 +594,14 @@ function update(){
             let nextMilestone = milestones.find(m => m > days);
             let milestoneText = "";
             if(nextMilestone){
-                milestoneText = (nextMilestone - days) + " days until " + nextMilestone;
+                milestoneText = "Next: " + nextMilestone + " Days (" + (nextMilestone - days) + " days remaining)";
             } else {
                 milestoneText = "1000+ days!";
             }
-            document.getElementById("smokingMilestone").textContent = milestoneText;
+            document.getElementById("smokingMilestone").textContent = getBadgeText(days);
 
             // Badge
-            document.getElementById("smokingBadge").textContent = getBadgeText(days);
+            document.getElementById("smokingBadge").textContent = milestoneText;
 
             // Confetti on milestone hit
             if(milestones.includes(days)){

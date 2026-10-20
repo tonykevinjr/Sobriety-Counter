@@ -411,9 +411,14 @@ function saveDate(name,date){
     localStorage.setItem(name,date);
 }
 
+function getNonNegativeSetting(name, fallback){
+    const raw = localStorage.getItem(name);
+    const value = raw === null || raw.trim() === "" ? NaN : Number(raw);
+    return Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
 function getCigarettesPerDay(){
-    const val = localStorage.getItem("cigarettesPerDay");
-    return val !== null ? Number(val) : DEFAULT_CIGARETTES_PER_DAY;
+    return getNonNegativeSetting("cigarettesPerDay", DEFAULT_CIGARETTES_PER_DAY);
 }
 
 function saveCigarettesPerDay(val){
@@ -421,8 +426,7 @@ function saveCigarettesPerDay(val){
 }
 
 function getBeersPerDay(){
-    const val = localStorage.getItem("beersPerDay");
-    return val !== null ? Number(val) : DEFAULT_BEERS_PER_DAY;
+    return getNonNegativeSetting("beersPerDay", DEFAULT_BEERS_PER_DAY);
 }
 
 function saveBeersPerDay(val){
@@ -430,8 +434,7 @@ function saveBeersPerDay(val){
 }
 
 function getCostPerPack(){
-    const val = localStorage.getItem("costPerPack");
-    return val !== null ? Number(val) : DEFAULT_COST_PER_PACK;
+    return getNonNegativeSetting("costPerPack", DEFAULT_COST_PER_PACK);
 }
 
 function saveCostPerPack(val){
@@ -439,26 +442,28 @@ function saveCostPerPack(val){
 }
 
 function getCostPerBeer(){
-    const val = localStorage.getItem("costPerBeer");
-    return val !== null ? Number(val) : DEFAULT_COST_PER_BEER;
+    return getNonNegativeSetting("costPerBeer", DEFAULT_COST_PER_BEER);
 }
 
 function saveCostPerBeer(val){
     localStorage.setItem("costPerBeer", val);
 }
 
+// Date inputs represent local calendar dates, not UTC timestamps.
+function parseCalendarDate(dateString){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return null;
+    const [year, month, day] = dateString.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 &&
+        date.getDate() === day ? date : null;
+}
+
 function daysSince(dateString){
-
-    const start = new Date(dateString);
+    const start = parseCalendarDate(dateString) || parseCalendarDate(DEFAULT_DATE);
     const today = new Date();
-
-    start.setHours(0,0,0,0);
-    today.setHours(0,0,0,0);
-
-    const diff = today - start;
-
-    return Math.floor(diff/(1000*60*60*24));
-
+    // Compare calendar days so 23- and 25-hour DST days each count as one day.
+    const calendarDay = date => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    return Math.max(0, Math.round((calendarDay(today) - calendarDay(start)) / 86400000));
 }
 
 function animateValue(element, start, end, duration, formatter) {
@@ -549,7 +554,7 @@ function update(){
         animateValue(daysElem, currentVal, days, 1000, v => `${v} days`);
 
         // Format started date
-        const startDate = new Date(date);
+        const startDate = parseCalendarDate(date) || parseCalendarDate(DEFAULT_DATE);
         const formattedDate = startDate.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
         document.getElementById(name+"Date").textContent = "Started: " + formattedDate;
 
@@ -645,6 +650,12 @@ function closeSettings(){
 }
 
 function saveSettings(){
+    const inputs = [...document.querySelectorAll("#settingsModal input")];
+    for(const input of inputs){
+        input.required = true;
+        if(!input.reportValidity()) return;
+    }
+
     const sobrietyVal = document.getElementById("sobrietyInput").value;
     const smokingVal = document.getElementById("smokingInput").value;
     const cigarettesPerDayVal = Number(document.getElementById("cigarettesPerDayInput").value);
@@ -685,6 +696,21 @@ function applyDarkModePreference(){
 
 applyDarkModePreference();
 update();
+
+// Keep totals current when the app stays open overnight or returns from sleep.
+let lastUpdatedDay = new Date().toDateString();
+function refreshIfDayChanged(){
+    const today = new Date().toDateString();
+    if(today !== lastUpdatedDay){
+        lastUpdatedDay = today;
+        update();
+    }
+}
+setInterval(refreshIfDayChanged, 60000);
+window.addEventListener("focus", refreshIfDayChanged);
+document.addEventListener("visibilitychange", () => {
+    if(!document.hidden) refreshIfDayChanged();
+});
 
 </script>
 
